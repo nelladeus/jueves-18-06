@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Viewport mobile-first: escala correctamente en celulares -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apex – Sim Racing al máximo nivel</title>
+
+  <!-- =====================================================
+       FUENTES – Google Fonts
+       - Oswald: reemplaza Heading Now y Barlow Condensed.
+         Se usa para títulos, CTAs y texto de navegación destacado.
+         Pesos cargados: 400 (regular), 600 (semibold), 700 (bold).
+       - Montserrat: para subtítulos y cuerpo de texto.
+         Pesos cargados: 400, 500, 600, 700.
+       Ambas se cargan en una sola llamada para optimizar.
+  ====================================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =====================================================
+       TOKENS DE DISEÑO – Paleta y tipografía centralizadas.
+       Cambiar acá afecta todo el sitio.
+    ====================================================== */
+    :root {
+      /* Colores de marca */
+      --color-black:      #000000;
+      --color-blue-dark:  #3130AA;
+      --color-blue-mid:   #5555E1;
+      --color-blue-light: #8B8BF2;
+      --color-lime:       #BCE851;   /* acento principal / CTA */
+      --color-lime-soft:  #DDF4A8;
+      --color-cream:      #F8F2E1;
+
+      /* Tipografías
+         --font-heading → Oswald: condensado, impacto visual, ideal para títulos grandes
+         --font-body    → Montserrat: limpia y legible para textos y subtítulos */
+      --font-heading: 'Oswald', sans-serif;
+      --font-body:    'Montserrat', sans-serif;
+
+      /* Alturas fijas de la navbar */
+      --nav-height-mobile:  56px;
+      --nav-height-desktop: 64px;
+
+      --padding-desktop: 250px;
+    }
+
+    /* =====================================================
+       RESET BÁSICO
+       Eliminamos márgenes y box-sizing inconsistentes.
+    ====================================================== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth; /* scroll suave al hacer click en links del nav */
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-black);
+      color: var(--color-cream);
+      overflow-x: hidden; /* evita scroll horizontal en mobile */
+    }
+
+
+    /* =====================================================
+       NAVBAR
+       - Mobile: logo a la izquierda, hamburger a la derecha
+       - Desktop: logo + links horizontales
+       - Posición fija para que siempre sea visible al scrollear
+    ====================================================== */
+
+    .navbar {
+      position: fixed;          /* fijo en la parte superior */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: var(--nav-height-mobile);
+      z-index: 1000;            /* sobre todo el contenido */
+      background-color: var(--color-black);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    /* JS agrega esta clase al detectar scroll > 10px */
+    .navbar.scrolled {
+      background-color: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(8px); /* efecto frosted glass */
+    }
+
+    /* ── Logo ── */
+    .navbar__logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .navbar__logo svg {
+      height: 26px;
+      width: auto;
+    }
+
+    /* ── Links de navegación (ocultos en mobile) ── */
+    .navbar__links {
+      display: none;
+      list-style: none;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .navbar__links a {
+      font-family: var(--font-body);  /* Montserrat para links de nav */
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-cream);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .navbar__links a:hover,
+    .navbar__links a.active {
+      color: var(--color-blue-light);
+    }
+
+    /* "Entrenamiento" va en negrita según el diseño */
+    .navbar__links a[data-highlight] {
+      font-weight: 700;
+    }
+
+    /* ── Botón hamburger (solo visible en mobile) ── */
+    .navbar__hamburger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      min-width: 44px;   /* área de toque mínima recomendada */
+      min-height: 44px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    /* Las tres líneas del ícono hamburger */
+    .navbar__hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background-color: var(--color-cream);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      transform-origin: center;
+    }
+
+    /* Animación X cuando el menú está abierto */
+    .navbar__hamburger.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+    .navbar__hamburger.open span:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    .navbar__hamburger.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* ── Menú mobile desplegable ── */
+    .navbar__mobile-menu {
+      display: none;
+      position: fixed;
+      top: var(--nav-height-mobile);
+      left: 0;
+      width: 100%;
+      background-color: var(--color-black);
+      padding: 24px 20px 32px;
+      z-index: 999;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .navbar__mobile-menu.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar__mobile-menu a {
+      font-family: var(--font-body);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--color-cream);
+      text-decoration: none;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: color 0.2s ease;
+    }
+
+    .navbar__mobile-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .navbar__mobile-menu a:hover {
+      color: var(--color-blue-light);
+    }
+
+
+    /* =====================================================
+       HERO
+       - Full viewport height (100svh)
+       - Fondo: elemento <video> en lugar de background-image
+       - Overlay degradado para legibilidad del texto
+       - Texto en la parte inferior izquierda
+    ====================================================== */
+
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100svh;       /* svh descuenta las barras del navegador mobile */
+      min-height: 500px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end; /* texto pegado abajo */
+      padding-bottom: 48px;
+    }
+
+    /* ── Video de fondo ──
+       El elemento <video> se posiciona absolutamente y cubre
+       todo el hero igual que haría un background-image: cover.
+
+       CÓMO FUNCIONA:
+       - width/height: 100% → ocupa todo el contenedor
+       - object-fit: cover → recorta el video para cubrir sin deformar
+       - object-position: center top → enfoca la parte superior del video
+       - pointer-events: none → el video no intercepta clicks del usuario
+       - Atributos HTML: autoplay, muted, loop, playsinline
+         (playsinline es clave en iOS para que no abra pantalla completa)
+
+       MOBILE vs DESKTOP:
+       Hay dos elementos <video>: uno para mobile y uno para desktop.
+       Se muestran/ocultan con CSS según el breakpoint.
+       Esto evita que el navegador descargue ambos videos a la vez.
+    ====================================================== */
+
+    /* Estilos compartidos para ambos videos */
+    .hero__video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;        /* recorta el video para cubrir el área sin deformar */
+      object-position: center top; /* enfoca la parte superior (cara del piloto) */
+      pointer-events: none;     /* el video no bloquea clicks/taps */
+    }
+
+    /* Por defecto (mobile): solo se muestra el video mobile */
+    .hero__video--mobile  { display: block; }
+    .hero__video--desktop { display: none;  }
+
+    /* ── Overlay degradado oscuro ──
+       Capa encima del video que hace el texto legible. */
+    .hero__overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.10) 0%,
+        rgba(0, 0, 0, 0.20) 40%,
+        rgba(0, 0, 0, 0.70) 75%,
+        rgba(0, 0, 0, 0.85) 100%
+      );
+      pointer-events: none; /* no bloquea clicks */
+    }
+
+    /* ── Contenido del hero (sobre video y overlay) ── */
+    .hero__content {
+      position: relative;
+      z-index: 2;           /* encima de video y overlay */
+      width: 100%;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Título principal "SIM RACING" ──
+       Oswald bold, color lima, tamaño fluido con clamp().
+       clamp(mínimo, preferido-con-vw, máximo) */
+    .hero__title {
+      font-family: var(--font-heading); /* Oswald */
+      font-size: clamp(60px, 18vw, 120px);
+      font-weight: 600;
+      line-height: 0.9;           /* interlineado comprimido: estilo impacto */
+      color: var(--color-lime);
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    /* ── Subtítulo "al máximo nivel" ── */
+    .hero__subtitle {
+      font-family: var(--font-body); /* Montserrat */
+      font-size: clamp(20px, 5.5vw, 32px);
+      font-weight: 400;
+      color: var(--color-cream);
+      margin-bottom: 28px;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Botón CTA "COMENZÁ AHORA" ──
+       Oswald para el texto del CTA (estilo técnico/blueprint).
+       Sin border-radius: coherente con la estética de plano técnico. */
+
+       /* Contenedor que agrupa botón + líneas */
+.hero__cta-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+}
+
+/* Estilo compartido de ambas líneas */
+.hero__cta-line {
+  display: block;
+  width: 3px;
+  height: 60px;              /* ajustá según la altura del botón */
+  background-color: var(--color-lime);
+  transform: skewX(-16deg);   /* misma inclinación que el trapecio */
+}
+
+    .hero__cta {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  position: relative;        /* necesario para posicionar las líneas con ::before y ::after */
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-blue-dark);
+  background-color: var(--color-lime);
+  border: 2px solid transparent;
+  padding: 14px 52px;
+  text-decoration: none;
+  cursor: pointer;
+  /* Trapecio: corta los lados izquierdo y derecho en diagonal */
+  clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hero__cta::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background-color: var(--color-black);
+  clip-path: polygon(14px 0%, 100% 0%, calc(100% - 14px) 100%, 0% 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+.hero__cta:hover::before {
+  opacity: 1;
+}
+
+
+
+/* Línea derecha – espejo de la izquierda */
+.hero__cta::after {
+  content: '';
+  position: absolute;
+  right: -14px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: var(--color-lime);
+  transform: skewX(6deg);
+}
+
+.hero__cta:hover {
+  background-color: var(--color-lime);
+  color: var(--color-lime);
+}
+
+.hero__cta:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 4px;
+}
+
+
+
+    /* =====================================================
+       RESPONSIVE – DESKTOP (≥768px)
+    ====================================================== */
+    @media (min-width: 768px) {
+
+      /* Navbar: más alta, más padding, muestra links */
+      .navbar {
+        height: var(--nav-height-desktop);
+        padding: 0 40px;
+        
+      }
+
+      .navbar__links {
+        display: flex; /* links visibles en desktop */
+      }
+
+      .navbar__hamburger {
+        display: none; /* hamburger oculto en desktop */
+      }
+
+      .navbar__logo svg {
+        height: 30px;
+      }
+
+      /* SWAP DE VIDEOS: en desktop se oculta el mobile y aparece el desktop.
+         Esto hace que el navegador solo cargue el video correcto para cada
+         tamaño de pantalla (siempre que usen el atributo 'preload="none"'
+         en el video que no se muestra) */
+      .hero__video--mobile  { display: none;  }
+      .hero__video--desktop { display: block; }
+
+      /* En desktop el piloto está más a la derecha en el video,
+         así que centramos el encuadre en el centro */
+      .hero__video--desktop {
+        object-position: center center;
+      }
+
+      /* El texto ocupa solo la mitad izquierda en desktop */
+      .hero__content {
+        padding: 0 60px;
+        max-width: none;
+      }
+
+      .hero__title {
+        font-size: clamp(120px, 14vw, 200px);
+        margin-bottom: 12px;
+        white-space: nowrap;
+        align-self: flex-start;
+      }
+
+      .hero__subtitle {
+        font-size: clamp(45px, 5.5vw, 65px);
+        margin-bottom: 36px;
+        align-self: flex-start;
+      }
+
+      .hero__cta {
+        padding: 16px 80px;
+        font-size: 15px;
+        align-self: flex-start;
+      }
+
+      .hero__cta-wrapper{
+align-self: flex-start;}
+
+    }
+
+    /* Desktop grande (≥1200px) */
+    @media (min-width: 1200px) {
+      .navbar {
+        padding: 0 250px;
+      }
+
+      .hero__content {
+        padding: 0 250px;
+      }
+    }
+
+
+    /* =====================================================
+       ACCESIBILIDAD – Reduce movimiento
+       Pausa el video para usuarios con preferencia de
+       menos movimiento (mareos, epilepsia, etc.)
+    ====================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      /* Pausa el video en lugar de reproducirlo */
+      .hero__video {
+        animation-play-state: paused;
+      }
+      .navbar,
+      .navbar__hamburger span,
+      .hero__cta {
+        transition: none;
+      }
+    }
+
+    /* =====================================================
+   SECCIÓN: BENEFICIOS
+   "¿Por qué entrenar con nosotros?"
+
+   ESTRUCTURA:
+   1. Sección general (fondo claro, a diferencia del hero)
+   2. Título + resaltado lima
+   3. Track del carrusel (mobile: scroll-snap horizontal)
+   4. Tarjetas individuales (ícono + título + texto)
+   5. Dots de paginación (solo mobile)
+   6. Responsive: desktop convierte el carrusel en grilla fija
+====================================================== */
+
+
+/* =====================================================
+   1. SECCIÓN GENERAL
+   Fondo claro (cream) para contrastar con el hero oscuro.
+   Padding vertical generoso, horizontal chico en mobile
+   (el scroll del carrusel necesita que las tarjetas
+   puedan "sangrar" un poco hacia los bordes).
+====================================================== */
+.beneficios {
+  background-color: var(--color-cream);
+  padding: 64px 0 48px;
+  overflow-x: clip; /* evita que el scroll horizontal del carrusel cause overflow en el body */
+}
+
+
+/* =====================================================
+   2. TÍTULO DE LA SECCIÓN
+   "¿Por qué entrenar con nosotros?"
+   La palabra "entrenar" lleva un subrayado grueso en
+   lima, logrado con background-image en el <span>.
+====================================================== */
+.beneficios__title {
+  font-family: var(--font-heading);  /* Oswald */
+  font-size: clamp(28px, 7vw, 40px);
+  font-weight: 500;
+  color: var(--color-blue-mid);     /* azul oscuro de la paleta */
+  text-align: center;
+  line-height: 1.15;
+  padding: 0 24px;
+  margin-bottom: 30px;
+}
+
+/* ── Resaltado de la palabra "entrenar" ──
+   Técnica: el span tiene un fondo lima como "marcador",
+   posicionado detrás del texto y desplazado hacia abajo
+   con background-position, simulando un resaltador real. */
+.beneficios__highlight {
+  position: relative;
+  z-index: 1;
+  padding: 0 4px;
+}
+
+.beneficios__highlight::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: 2px;
+  height: 35%;
+  background-color: var(--color-lime);
+  clip-path: polygon(3% 0%, 100% 0%, 97% 100%, 0% 100%);
+  z-index: -1;
+}
+
+
+/* =====================================================
+   3. TRACK DEL CARRUSEL (mobile)
+   scroll-snap-type hace que el scroll "encaje" tarjeta
+   por tarjeta, sin necesidad de JS para el movimiento.
+   display: flex + overflow-x: auto = scroll horizontal.
+====================================================== */
+.beneficios__track {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+
+  /* Scroll horizontal con snap nativo del navegador */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;   /* obliga a encajar en cada tarjeta */
+  scroll-behavior: smooth;
+
+  /* Padding lateral = espacio antes de la 1ra y después de la última tarjeta,
+     para que ninguna quede pegada al borde de la pantalla */
+  padding: 0 24px 24px;
+
+  /* Oculta la barra de scroll visualmente (el snap ya indica el gesto) */
+  scrollbar-width: none;           /* Firefox */
+}
+
+.beneficios__track::-webkit-scrollbar {
+  display: none;                   /* Chrome, Safari, Edge */
+}
+
+
+/* =====================================================
+   4. TARJETAS INDIVIDUALES
+   Cada tarjeta ocupa casi todo el ancho de pantalla en
+   mobile (una tarjeta grande a la vez, según lo definido).
+====================================================== */
+.beneficios__card {
+  /* flex: 0 0 X% → no crece, no se encoge, ancho fijo */
+  flex: 0 0 100%;           /* tarjeta grande, deja asomar apenas el borde de la siguiente */
+  max-width: none;        /* tope para que no sea gigante en tablets */
+
+  scroll-snap-align: center; /* cada tarjeta encaja centrada al hacer scroll */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px;
+}
+
+/* ── Ícono ──
+   Tamaño fijo, reemplazable por cualquier .png cuadrado */
+.beneficios__icon {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;     /* mantiene proporción del ícono sin recortarlo */
+  margin-bottom: 16px;
+}
+
+/* ── Título de cada beneficio ── */
+.beneficios__card-title {
+  font-family: var(--font-body);  /* Oswald */
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-blue-mid);      /* azul medio de la paleta */
+  margin-bottom: 8px;
+}
+
+/* ── Texto descriptivo ── */
+.beneficios__card-text {
+  font-family: var(--font-body);     /* Montserrat */
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-black);
+  line-height: 1.4;
+  max-width: 250px
+}
+
+
+/* =====================================================
+   5. DOTS DE PAGINACIÓN (solo mobile)
+   Indicadores visuales (NO clickeables). El JS detecta
+   la posición del scroll y marca el dot correspondiente
+   con la clase "active".
+====================================================== */
+.beneficios__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.beneficios__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-lime-soft); /* dot inactivo */
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+/* Dot activo: color lima + leve aumento de tamaño */
+.beneficios__dot.active {
+  background-color: var(--color-lime);
+  transform: scale(1.3);
+}
+
+
+/* =====================================================
+   6. RESPONSIVE – DESKTOP (≥768px)
+   El carrusel se transforma en una grilla estática de
+   6 columnas. Se desactiva el scroll y se ocultan los dots.
+====================================================== */
+@media (min-width: 768px) {
+
+  .beneficios {
+    padding: 96px 0 80px;
+  }
+
+  .beneficios__title {
+    font-size: clamp(36px, 4vw, 52px);
+    margin-bottom: 56px;
+  }
+
+  /* ── Grilla en lugar de carrusel ──
+     display: grid con 6 columnas iguales.
+     Se quita el overflow-x y el scroll-snap porque
+     ya no hace falta scrollear: todo es visible a la vez. */
+  .beneficios__track {
+    padding: 0 var(--padding-desktop, 250px);
+    display: grid;
+    grid-template-columns: repeat(6, auto);
+    justify-content: center;
+    gap: 0px;
+    overflow-x: visible;       /* desactiva el scroll */
+    scroll-snap-type: none;
+     /* usa el margen lateral global del sitio */
+  }
+
+  /* En grilla, las tarjetas ocupan el 100% de su columna
+     (ya no necesitan el ancho fijo del carrusel mobile) */
+  .beneficios__card {
+    flex: none;
+    max-width: none;
+    
+  }
+
+  .beneficios__icon {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 0px;
+  }
+
+  .beneficios__card-title {
+    font-size: 16px;
+  }
+
+  .beneficios__card-text {
+    font-size: 13px;
+    max-width: 250px;
+  }
+
+  /* Dots ocultos: no tienen sentido sin scroll */
+  .beneficios__dots {
+    display: none;
+  }
+}
+
+/* ── Desktop grande (≥1200px) ──
+   Usa el mismo padding lateral de 250px definido
+   globalmente para mantener consistencia con navbar y hero. */
+@media (min-width: 1200px) {
+  .beneficios__track {
+    padding: 0 var(--padding-desktop, 250px);
+    gap: 0px
+  }
+
+  .beneficios__icon {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 0px;
+  }
+
+  .beneficios__card-title {
+    font-size: 18px;
+    max-width: 250px;
+  }
+
+  .beneficios__card-text {
+    font-size: 14px;
+    max-width: 250px;
+  }
+}
+
+
+/* =====================================================
+   ACCESIBILIDAD – Reduce movimiento
+   Desactiva el scroll suave y las transiciones de los dots
+====================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .beneficios__track {
+    scroll-behavior: auto;
+  }
+  .beneficios__dot {
+    transition: none;
+  }
+}
+
+
+/* =====================================================
+   SECCIÓN: CURSOS
+   "Coaching 1 a 1"
+
+   ESTRUCTURA:
+   1. Sección general (altura, posición relativa para
+      poder apilar capas de fondo + contenido)
+   2. Imágenes de fondo (mobile / desktop, igual lógica
+      que el video del hero: una se oculta, otra se muestra)
+   3. Título + resaltado lima en diagonal
+   4. Bloque inferior (franja con CTAs + footnote)
+   5. CTAs con forma de trapecio (mismo patrón que el hero)
+   6. Responsive
+====================================================== */
+
+
+/* =====================================================
+   1. SECCIÓN GENERAL
+   position: relative permite que el fondo (absolute) y
+   el contenido se apilen correctamente dentro de esta caja.
+   Altura fija pensada para que la imagen se vea completa;
+   ajustá min-height según el aspect-ratio real de tus fotos.
+====================================================== */
+.cursos {
+  position: relative;
+  width: 100%;
+  min-height: 700px;     /* alto pensado para mobile vertical, ajustable */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =====================================================
+   2. IMÁGENES DE FONDO
+   Mismo patrón que el hero: dos capas, una para mobile
+   y otra para desktop, que se muestran/ocultan según
+   el ancho de pantalla (evita cargar la imagen que no
+   corresponde — usando lazy-loading más abajo).
+====================================================== */
+.cursos__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Mobile (default): se muestra el fondo mobile, se oculta el desktop */
+.cursos__bg--mobile  { display: block; }
+.cursos__bg--desktop { display: none;  }
+
+
+/* =====================================================
+   3. TÍTULO "Coaching 1 a 1"
+   Ubicado en la franja superior de la sección, con
+   fondo claro (cream) detrás según el diseño original
+   (la franja superior clara contrasta con el resto oscuro).
+====================================================== */
+.cursos__title {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-heading);  /* Oswald */
+   font-size: clamp(28px, 7vw, 40px);
+  font-weight: 500;
+  color: var(--color-blue-mid);
+  background-color: var(--color-cream); /* franja superior clara */
+  padding: 20px 24px 16px;
+  margin: 0;
+  text-align: center;
+    width: 100%;
+}
+
+/* ── Resaltado de "1 a 1" ──
+   Mismo patrón que .beneficios__highlight: un pseudo-elemento
+   con clip-path en forma de paralelogramo detrás del texto. */
+.cursos__highlight {
+  position: relative;
+  z-index: 1;
+  padding: 0 4px;
+}
+
+.cursos__highlight::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: 2px;
+  height: 35%;
+  background-color: var(--color-lime);
+  clip-path: polygon(3% 0%, 100% 0%, 97% 100%, 0% 100%);
+  z-index: -1;
+}
+
+
+/* =====================================================
+   4. BLOQUE INFERIOR
+   Contiene los dos CTAs y el footnote. Se ubica pegado
+   al fondo de la sección, con un fondo oscuro semitransparente
+   para que el texto sea legible sobre la imagen.
+====================================================== */
+.cursos__bottom {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;       /* empuja el bloque hacia el final de la sección (flex) */
+  background-color: rgba(0, 0, 0, 0.0); /* franja oscura semitransparente */
+  padding: 24px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* alineado a la derecha, según el diseño mobile */
+  gap: 12px;
+}
+
+
+/* =====================================================
+   5. CTAs CON FORMA DE TRAPECIO
+   Mismo patrón ya usado en el hero: wrapper + líneas
+   laterales (::before/::after quedarían cortadas por el
+   clip-path, por eso son <span> hermanos, no pseudo-elementos).
+====================================================== */
+
+/* Contenedor que agrupa líneas + botón */
+.cursos__cta-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+}
+
+/* Líneas finas a los costados del botón, inclinadas
+   igual que el corte del trapecio (parallelogram) */
+.cursos__cta-line {
+  display: block;
+  width: 3px;
+  height: 50px;
+  transform: skewX(-16deg);
+}
+
+/* Color de línea según la variante del botón que acompañan */
+.cursos__cta-wrapper:has(.cursos__cta--solid)   .cursos__cta-line { background-color: var(--color-lime); }
+.cursos__cta-wrapper:has(.cursos__cta--outline) .cursos__cta-line { background-color: var(--color-cream); }
+
+/* ── Botón base (comparte forma entre las dos variantes) ── */
+.cursos__cta {
+  position: relative;
+  isolation: isolate;     /* contexto propio de z-index para el ::before */
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 12px 40px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  /* Trapecio: mismo corte paralelo que el CTA del hero */
+  clip-path: polygon(16px 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Pseudo-elemento usado en hover para simular el efecto outline
+   (ver explicación completa en la sección Hero) */
+.cursos__cta::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  clip-path: polygon(14px 0%, 100% 0%, calc(100% - 14px) 100%, 0% 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+/* ── Variante sólida (Comenzá ahora) ──
+   Fondo lima, texto azul oscuro. Hover: invierte a outline. */
+.cursos__cta--solid {
+  background-color: var(--color-lime);
+  color: var(--color-blue-dark);
+}
+
+.cursos__cta--solid::before {
+  background-color: var(--color-black);
+}
+
+.cursos__cta--solid:hover {
+  background-color: var(--color-lime);
+  color: var(--color-lime);
+}
+.cursos__cta--solid:hover::before {
+  opacity: 1;
+}
+
+/* ── Variante outline (Ver más) ──
+   Fondo transparente, texto y borde cream desde el inicio.
+   Hover: se rellena de cream con texto oscuro (efecto inverso al sólido). */
+.cursos__cta--outline {
+  background-color: var(--color-cream);   /* esto actúa como "borde" */
+  color: var(--color-cream);
+}
+
+.cursos__cta--outline::before {
+  background-color: var(--color-black);   /* tapa el centro, deja solo el contorno cream visible */
+  opacity: 1;
+}
+
+.cursos__cta--outline:hover {
+  background-color: var(--color-cream);
+  color: var(--color-black);
+}
+.cursos__cta--outline:hover::before {
+  opacity: 0;   /* al hacer hover desaparece el "tapado" y queda todo cream */
+}
+
+.cursos__cta:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 4px;
+}
+
+
+/* =====================================================
+   FOOTNOTE – "Si todavía dudás, mirá nuestros otros cursos"
+====================================================== */
+.cursos__footnote {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-cream);
+  text-align: center;       /* alineado a la derecha en mobile */
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.cursos__footnote-link {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-lime);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.cursos__footnote-link:hover {
+  text-decoration: underline;
+}
+
+
+/* =====================================================
+   6. RESPONSIVE – DESKTOP (≥768px)
+   La franja de título pasa a estar arriba a la derecha
+   (sobre la imagen, no como franja de ancho completo) y
+   el bloque inferior se convierte en una franja horizontal
+   de ancho completo, con los CTAs en fila.
+====================================================== */
+@media (min-width: 768px) {
+
+  .cursos {
+    min-height: 100vh;
+  }
+
+  /* Swap de imágenes: aparece la de desktop */
+  .cursos__bg--mobile  { display: none;  }
+  .cursos__bg--desktop { display: block; }
+
+  /* Título: ya no ocupa todo el ancho, se posiciona arriba
+     con padding lateral consistente con el resto del sitio */
+  .cursos__title {
+    background-color: var(--color-cream);
+    padding: 24px var(--padding-desktop, 60px) 20px;
+    width: fit-content;     /* la franja clara solo cubre el ancho del texto */
+    font-size: clamp(32px, 4vw, 44px);
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Bloque inferior: franja horizontal de ancho completo,
+     CTAs en fila (no en columna) */
+  .cursos__bottom {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 20px var(--padding-desktop, 60px);
+    gap: 24px;
+  }
+
+  /* El footnote queda al final de la fila, separado de los CTAs */
+  .cursos__footnote {
+    text-align: left;
+    margin-top: 0;
+    margin-left: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .cursos__title {
+    padding: 28px 250px 24px;
+  }
+  .cursos__bottom {
+    padding: 24px 250px;
+  }
+}
+
+
+/* =====================================================
+   ACCESIBILIDAD – Reduce movimiento
+====================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .cursos__cta,
+  .cursos__cta::before {
+    transition: none;
+  }
+}
+
+
+  </style>
+</head>
+
+<body>
+
+  <!-- =====================================================
+       NAVBAR
+  ====================================================== -->
+  <nav class="navbar" id="navbar" aria-label="Navegación principal">
+
+    <a href="#" class="navbar__logo" aria-label="Apex – Inicio">
+      <svg viewBox="0 0 275.2 50.4" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <style>.st0{fill:#8B8BF2;}</style>
+        <g>
+          <path class="st0" d="M69.9,0.2C74.2,0.2,134.4,0,134.4,0v33.8l-46.4,5.8v10.8h-18C69.9,50.4,69.9,3.3,69.9,0.2z M87.9,30.6 l28.5-3.6V9.4H87.9L87.9,30.6z"/>
+          <path class="st0" d="M139.5,0.2L203.2,0v19.1l-45.7,6.5v3.2h27.7v-3.2l18-1.8v14.4h-63.7C139.5,38.2,139.5,3.3,139.5,0.2z M157.5,16.3l27.7-3.7V9.4h-27.8L157.5,16.3z"/>
+          <path class="st0" d="M206,38.2l20.2-19.1L206,0h20.5L241,12.2L253.9,0h21.2L255,19.1l20.2,19.1h-20.5l-14.4-12.2l-13,12.2H206z"/>
+          <path class="st0" d="M63.7,37.9L0,38.2V19.1l45.7-6.5V9.4H18v3.2L0,14.4V0h63.7C63.7,0,63.7,34.9,63.7,37.9z M45.7,21.9L18,25.6 v3.2h27.7L45.7,21.9z"/>
+        </g>
+      </svg>
+    </a>
+
+    <ul class="navbar__links" role="list">
+      <li><a href="#beneficios">Beneficios</a></li>
+      <li><a href="#quienes-somos">Conocenos</a></li>
+      <li><a href="#cursos">Cursos</a></li>
+      <li><a href="#metodologia">Entrenamiento</a></li>
+      <li><a href="#testimonios">Testimonios</a></li>
+      <li><a href="#faq">Preguntas frecuentes</a></li>
+      <li><a href="#redes">Seguinos</a></li>
+    </ul>
+
+    <button
+      class="navbar__hamburger"
+      id="hamburger-btn"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+  </nav>
+
+  <!-- Menú mobile desplegable -->
+  <div class="navbar__mobile-menu" id="mobile-menu" role="dialog" aria-label="Menú de navegación">
+    <a href="#beneficios"    onclick="closeMenu()">Beneficios</a>
+    <a href="#quienes-somos" onclick="closeMenu()">Conocenos</a>
+    <a href="#cursos"        onclick="closeMenu()">Cursos</a>
+    <a href="#metodologia"   onclick="closeMenu()">Entrenamiento</a>
+    <a href="#testimonios"   onclick="closeMenu()">Testimonios</a>
+    <a href="#faq"           onclick="closeMenu()">Preguntas frecuentes</a>
+    <a href="#redes"         onclick="closeMenu()">Seguinos</a>
+  </div>
+
+
+  <!-- =====================================================
+       HERO
+       Contiene dos elementos <video>: uno para mobile y
+       otro para desktop. CSS muestra solo el que corresponde
+       al tamaño de pantalla actual.
+  ====================================================== -->
+  <section class="hero" id="hero" aria-label="Hero – Apex Sim Racing">
+
+    <!-- VIDEO MOBILE
+         Se muestra en pantallas < 768px.
+         REEMPLAZÁ 'hero-mobile.mp4' con tu archivo real.
+         
+         Atributos importantes:
+         - autoplay: arranca solo al cargar
+         - muted: obligatorio para que autoplay funcione en navegadores modernos
+         - loop: se repite infinitamente
+         - playsinline: en iOS evita que se abra en pantalla completa
+         - preload="none": NO descarga el video hasta que sea necesario
+           (el CSS lo oculta en desktop, así no se descarga en esas pantallas)
+    -->
+    <video
+      class="hero__video hero__video--mobile"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"
+    >
+      <source src="assets/img/Videoherom.mp4" type="video/mp4" />
+      <!-- Fallback: si el navegador no soporta video -->
+    </video>
+
+    <!-- VIDEO DESKTOP
+         Se muestra en pantallas ≥ 768px.
+         REEMPLAZÁ 'hero-desktop.mp4' con tu archivo real.
+         Mismos atributos que el mobile.
+    -->
+    <video
+      class="hero__video hero__video--desktop"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"
+    >
+      <source src="assets/img/videoherod.mp4" type="video/mp4" />
+    </video>
+
+    <!-- Overlay degradado sobre el video -->
+    <div class="hero__overlay" aria-hidden="true"></div>
+
+    <!-- Contenido textual -->
+    <div class="hero__content">
+      <h1 class="hero__title">Sim Racing</h1>
+      <p class="hero__subtitle">al máximo nivel</p>
+      <div class="hero__cta-wrapper">
+  <span class="hero__cta-line hero__cta-line--left"></span>
+  <a href="#cursos" class="hero__cta">Comenzá ahora</a>
+  <span class="hero__cta-line hero__cta-line--right"></span>
+</div>
+    </div>
+
+  </section>
+
+
+  <!-- Placeholders de secciones futuras -->
+  <!-- =====================================================
+     SECCIÓN: BENEFICIOS
+     "¿Por qué entrenar con nosotros?"
+
+     ESTRUCTURA:
+     - Título con un resaltado en lima debajo de una palabra
+     - Mobile: carrusel horizontal con scroll-snap (1 tarjeta
+       grande a la vez) + dots indicadores (no clickeables)
+     - Desktop: grilla estática de 6 columnas, sin scroll
+
+     Los íconos son <img> — reemplazá el atributo src de cada
+     uno con la ruta a tus archivos .png
+====================================================== -->
+
+<section class="beneficios" id="beneficios" aria-label="Beneficios de entrenar con Apex">
+
+  <!-- ── Título de la sección ──
+       La palabra "entrenar" lleva un resaltado en lima debajo,
+       logrado con un <span> + background-image / text-decoration -->
+  <h2 class="beneficios__title">
+    ¿Por qué <span class="beneficios__highlight">entrenar con nosotros</span>?
+  </h2>
+
+  <!-- ── Contenedor con scroll ──
+       En mobile: scroll horizontal con snap.
+       En desktop: se convierte en grilla (ver CSS @media).
+       role="list" + aria-label ayuda a lectores de pantalla
+       a entender que es un conjunto de ítems relacionados. -->
+  <ul class="beneficios__track" id="beneficios-track" role="list">
+
+    <!-- ── Tarjeta 1 ── -->
+    <li class="beneficios__card">
+      <!-- REEMPLAZÁ el src con la ruta a tu ícono -->
+      <img class="beneficios__icon" src="assets/img/clock.png" alt="" />
+      <h3 class="beneficios__card-title">Mejorá tus tiempos</h3>
+      <p class="beneficios__card-text">
+        Aprendé técnicas de conducción para reducir segundos por vuelta
+      </p>
+    </li>
+
+    <!-- ── Tarjeta 2 ── -->
+    <li class="beneficios__card">
+      <img class="beneficios__icon" src="assets/img/control.png" alt="" />
+      <h3 class="beneficios__card-title">Entrenamiento personalizado</h3>
+      <p class="beneficios__card-text">
+        Recibí recomendaciones enfocadas en tus necesidades
+      </p>
+    </li>
+
+    <!-- ── Tarjeta 3 ── -->
+    <li class="beneficios__card">
+      <img class="beneficios__icon" src="assets/img/grafico.png" alt="" />
+      <h3 class="beneficios__card-title">Análisis de telemetría</h3>
+      <p class="beneficios__card-text">
+        Identificá tus errores mediante herramientas profesionales
+      </p>
+    </li>
+
+    <!-- ── Tarjeta 4 ── -->
+    <li class="beneficios__card">
+      <img class="beneficios__icon" src="assets/img/auto.png" alt="" />
+      <h3 class="beneficios__card-title">Setup profesional</h3>
+      <p class="beneficios__card-text">
+        Aprendé a ajustar tu vehículo y obtener el mejor rendimiento
+      </p>
+    </li>
+
+    <!-- ── Tarjeta 5 ── -->
+    <li class="beneficios__card">
+      <img class="beneficios__icon" src="assets/img/compu.png" alt="" />
+      <h3 class="beneficios__card-title">Clases online</h3>
+      <p class="beneficios__card-text">
+        Accedé a las sesiones en vivo sin importar en dónde estés
+      </p>
+    </li>
+
+    <!-- ── Tarjeta 6 ── -->
+    <li class="beneficios__card">
+      <img class="beneficios__icon" src="assets/img/casco.png" alt="" />
+      <h3 class="beneficios__card-title">Experiencia competitiva</h3>
+      <p class="beneficios__card-text">
+        Nuestros mentores cuentan con experiencia en ligas de alto nivel
+      </p>
+    </li>
+
+  </ul>
+
+  <!-- ── Dots de paginación ──
+       Solo visibles en mobile (ver CSS). Son indicadores
+       visuales, NO son clickeables (según lo definido).
+       El JS actualiza cuál tiene la clase "active" según
+       la posición del scroll. -->
+  <div class="beneficios__dots" id="beneficios-dots" aria-hidden="true">
+    <span class="beneficios__dot active"></span>
+    <span class="beneficios__dot"></span>
+    <span class="beneficios__dot"></span>
+    <span class="beneficios__dot"></span>
+    <span class="beneficios__dot"></span>
+    <span class="beneficios__dot"></span>
+  </div>
+
+</section>
+  <section id="quienes-somos" style="min-height:100vh;display:grid;place-items:center;background:#0a0a1a;color:#fff;font-family:sans-serif;">Sección Quiénes Somos</section>
+ <!-- =====================================================
+     SECCIÓN: CURSOS
+     "Coaching 1 a 1"
+
+     ESTRUCTURA:
+     - Fondo: una sola imagen (foto + render técnico ya
+       cortados en diagonal dentro del mismo archivo).
+       Hay dos versiones: mobile y desktop, igual que el hero.
+     - Contenido: título con resaltado lima, dos CTAs
+       (uno sólido, uno outline) y un texto chico con link
+       a "otros cursos" al final.
+     - Todo el contenido está alineado a la derecha en mobile
+       y queda en la franja inferior en desktop (según el diseño).
+====================================================== -->
+
+<section class="cursos" id="cursos" aria-label="Cursos – Coaching 1 a 1">
+
+  <!-- ── Imagen de fondo MOBILE ──
+       Se muestra por defecto (mobile-first).
+       REEMPLAZÁ 'cursos-bg-mobile.jpg' con tu archivo real. -->
+  <div class="cursos__bg cursos__bg--mobile"
+       style="background-image: url(assets/img/cursomob.png);"
+       role="img"
+       aria-label="Coaching 1 a 1 - simulador de sim racing">
+  </div>
+
+  <!-- ── Imagen de fondo DESKTOP ──
+       Oculta en mobile, se muestra en @media ≥768px.
+       REEMPLAZÁ 'cursos-bg-desktop.jpg' con tu archivo real. -->
+  <div class="cursos__bg cursos__bg--desktop"
+       style="background-image: url(assets/img/cursodes.png);"
+       role="img"
+       aria-label="Coaching 1 a 1 - simulador de sim racing">
+  </div>
+
+  <!-- ── Título ──
+       Posicionado arriba, con el mismo resaltado lima
+       en diagonal que usamos en la sección Beneficios. -->
+  <h2 class="cursos__title">
+    Coaching <span class="cursos__highlight">1 a 1</span>
+  </h2>
+
+  <!-- ── Bloque inferior: CTAs + texto de "otros cursos" ──
+       Va sobre una franja semitransparente para legibilidad,
+       alineado según el diseño (derecha en mobile, ver CSS). -->
+  <div class="cursos__bottom">
+
+    <!-- CTA 1: sólido lima, reutiliza el mismo patrón del hero
+         (wrapper + líneas laterales + botón con clip-path) -->
+    <div class="cursos__cta-wrapper">
+      <span class="cursos__cta-line cursos__cta-line--left"></span>
+      <a href="#contacto" class="cursos__cta cursos__cta--solid">Comenzá ahora</a>
+      <span class="cursos__cta-line cursos__cta-line--right"></span>
+    </div>
+
+    <!-- CTA 2: outline cream, mismo patrón pero variante de color -->
+    <div class="cursos__cta-wrapper">
+      <span class="cursos__cta-line cursos__cta-line--left"></span>
+      <a href="#cursos-detalle" class="cursos__cta cursos__cta--outline">Ver más</a>
+      <span class="cursos__cta-line cursos__cta-line--right"></span>
+    </div>
+
+    <!-- Texto chico con link a otros cursos -->
+    <p class="cursos__footnote">
+      Si todavía dudás, mirá nuestros<br />
+      <a href="#otros-cursos" class="cursos__footnote-link">otros cursos</a>
+    </p>
+
+  </div>
+
+</section>
+
+  <section id="metodologia"   style="min-height:100vh;display:grid;place-items:center;background:#0a0a1a;color:#fff;font-family:sans-serif;">Sección Metodología</section>
+  <section id="testimonios"   style="min-height:100vh;display:grid;place-items:center;background:#111;color:#fff;font-family:sans-serif;">Sección Testimonios</section>
+  <section id="faq"           style="min-height:100vh;display:grid;place-items:center;background:#0a0a1a;color:#fff;font-family:sans-serif;">Sección FAQ</section>
+  <section id="redes"         style="min-height:60vh;display:grid;place-items:center;background:#111;color:#fff;font-family:sans-serif;">Sección Redes</section>
+
+
+  <!-- =====================================================
+       JAVASCRIPT
+       - Toggle menú mobile (hamburger)
+       - Navbar con fondo al scrollear
+       - Pausa del video si prefers-reduced-motion está activo
+  ====================================================== -->
+  <script>
+
+    // ── Referencias al DOM ──
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileMenu   = document.getElementById('mobile-menu');
+    const navbar       = document.getElementById('navbar');
+
+    // ── Toggle menú mobile ──
+    hamburgerBtn.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburgerBtn.classList.toggle('open', isOpen);
+      hamburgerBtn.setAttribute('aria-expanded', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    // ── Cierre del menú al tocar un link ──
+    function closeMenu() {
+      mobileMenu.classList.remove('open');
+      hamburgerBtn.classList.remove('open');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+    // ── Cierre al tocar fuera del menú ──
+    document.addEventListener('click', (e) => {
+      const clickedOutside =
+        !mobileMenu.contains(e.target) &&
+        !hamburgerBtn.contains(e.target);
+      if (clickedOutside && mobileMenu.classList.contains('open')) {
+        closeMenu();
+      }
+    });
+
+    // ── Navbar opaca al scrollear ──
+    const handleScroll = () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 10);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // ── Cierre con tecla Escape ──
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+        closeMenu();
+        hamburgerBtn.focus();
+      }
+    });
+
+    // ── Pausa de videos si el usuario prefiere menos movimiento ──
+    // matchMedia detecta la preferencia del sistema operativo.
+    // Si está activa, pausa ambos videos para no generar mareos.
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (prefersReducedMotion.matches) {
+      document.querySelectorAll('.hero__video').forEach(v => v.pause());
+    }
+
+   
+
+  // ── Referencias al DOM ──
+  const track = document.getElementById('beneficios-track');
+  const dots  = document.querySelectorAll('#beneficios-dots .beneficios__dot');
+
+  // ── Detecta qué tarjeta está más visible y activa su dot ──
+  // Se ejecuta cada vez que el usuario scrollea el carrusel.
+  // Usamos "scroll" con throttle simple vía requestAnimationFrame
+  // para no recalcular en cada pixel (mejor performance).
+  let isScrolling = false;
+
+  function updateActiveDot() {
+    // Ancho de cada tarjeta (asumimos que todas tienen el mismo ancho)
+    const cardWidth = track.children[0].offsetWidth;
+
+    // Índice de la tarjeta actual = posición de scroll / ancho de tarjeta
+    // Math.round redondea al más cercano (evita parpadeo en el límite)
+    const index = Math.round(track.scrollLeft / cardWidth);
+
+    // Recorre todos los dots y marca como "active" solo el que corresponde
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+
+    isScrolling = false;
+  }
+
+  // ── Listener de scroll con throttle vía requestAnimationFrame ──
+  // Evita ejecutar updateActiveDot() en cada evento de scroll
+  // (que puede dispararse decenas de veces por segundo).
+  track.addEventListener('scroll', () => {
+    if (!isScrolling) {
+      isScrolling = true;
+      requestAnimationFrame(updateActiveDot);
+    }
+  }, { passive: true });
+</script>
+
+
+  </script>
+
+</body>
+</html>

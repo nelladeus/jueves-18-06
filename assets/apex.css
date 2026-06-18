@@ -1,0 +1,416 @@
+/* =====================================================
+   APEX SIM RACING – Estilos: Navbar + Hero
+   Archivo: apex-hero.css
+
+   ESTRUCTURA:
+   1. Tokens de diseño (variables CSS)
+   2. Reset básico
+   3. Navbar (mobile + desktop)
+   4. Menú mobile desplegable
+   5. Hero con video de fondo
+   6. Responsive (≥768px, ≥1200px)
+   7. Accesibilidad (reduce-motion)
+====================================================== */
+
+
+/* =====================================================
+   1. TOKENS DE DISEÑO
+   Variables CSS centralizadas. Cambiar acá afecta
+   todo el sitio.
+====================================================== */
+:root {
+  /* Colores de marca */
+  --color-black:      #000000;
+  --color-blue-dark:  #3130AA;
+  --color-blue-mid:   #5555E1;
+  --color-blue-light: #8B8BF2;
+  --color-lime:       #BCE851;   /* acento principal / CTA */
+  --color-lime-soft:  #DDF4A8;
+  --color-cream:      #F8F2E1;
+
+  /* Tipografías
+     Oswald: condensada, con impacto, para títulos y CTAs
+     Montserrat: limpia y legible, para subtítulos y texto */
+  --font-heading: 'Oswald', sans-serif;
+  --font-body:    'Montserrat', sans-serif;
+
+  /* Alturas de la navbar */
+  --nav-height-mobile:  56px;
+  --nav-height-desktop: 64px;
+}
+
+
+/* =====================================================
+   2. RESET BÁSICO
+====================================================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-black);
+  color: var(--color-cream);
+  overflow-x: hidden;
+}
+
+
+/* =====================================================
+   3. NAVBAR
+   Fixed en la parte superior. En mobile solo se ve
+   el logo y el hamburger. En desktop aparecen los links.
+====================================================== */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--nav-height-mobile);
+  z-index: 1000;
+  background-color: var(--color-black);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  transition: background-color 0.3s ease;
+}
+
+/* JS agrega .scrolled al detectar scroll > 10px */
+.navbar.scrolled {
+  background-color: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+/* ── Logo ── */
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.navbar__logo svg {
+  height: 26px;
+  width: auto;
+}
+
+/* ── Links de navegación (ocultos en mobile) ── */
+.navbar__links {
+  display: none;       /* se activa en @media ≥768px */
+  list-style: none;
+  gap: 32px;
+  align-items: center;
+}
+
+.navbar__links a {
+  font-family: var(--font-body);  /* Montserrat para links */
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-cream);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.navbar__links a:hover,
+.navbar__links a.active {
+  color: var(--color-blue-light);
+}
+
+/* "Entrenamiento" resaltado en negrita */
+.navbar__links a[data-highlight] {
+  font-weight: 700;
+}
+
+/* ── Botón hamburger (solo mobile) ── */
+.navbar__hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  min-width: 44px;   /* área mínima de toque recomendada */
+  min-height: 44px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* Las tres líneas del ícono */
+.navbar__hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--color-cream);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+/* Animación: las tres líneas se convierten en una X */
+.navbar__hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.navbar__hamburger.open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.navbar__hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+
+/* =====================================================
+   4. MENÚ MOBILE DESPLEGABLE
+   Se posiciona debajo de la navbar.
+   JS agrega/remueve la clase .open para mostrarlo.
+====================================================== */
+
+.navbar__mobile-menu {
+  display: none;        /* oculto por defecto */
+  position: fixed;
+  top: var(--nav-height-mobile);
+  left: 0;
+  width: 100%;
+  background-color: var(--color-black);
+  padding: 24px 20px 32px;
+  z-index: 999;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.navbar__mobile-menu.open {
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar__mobile-menu a {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-cream);
+  text-decoration: none;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transition: color 0.2s ease;
+}
+
+.navbar__mobile-menu a:last-child {
+  border-bottom: none;
+}
+
+.navbar__mobile-menu a:hover {
+  color: var(--color-lime);
+}
+
+
+/* =====================================================
+   5. HERO CON VIDEO DE FONDO
+   El hero usa <video> en lugar de background-image.
+   Hay dos videos: uno para mobile y otro para desktop.
+   CSS muestra/oculta el que corresponde según el viewport.
+====================================================== */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100svh;      /* svh = "small viewport height": descuenta barras del navegador */
+  min-height: 500px;   /* fallback para navegadores sin soporte de svh */
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;  /* contenido pegado al fondo */
+  padding-bottom: 48px;
+}
+
+/* ── Video de fondo ──
+   Posicionado absolutamente para cubrir todo el hero.
+   object-fit: cover → recorta el video para cubrir el área
+   sin deformarlo, igual que background-size: cover.
+   pointer-events: none → el video no bloquea clicks/taps. */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top; /* enfoca la parte superior del encuadre */
+  pointer-events: none;
+}
+
+/* MOBILE (default): muestra video mobile, oculta desktop */
+.hero__video--mobile  { display: block; }
+.hero__video--desktop { display: none;  }
+
+/* ── Overlay degradado sobre el video ──
+   Asegura que el texto sea legible sobre cualquier toma del video.
+   Más oscuro abajo (donde está el texto), casi transparente arriba. */
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.10) 0%,
+    rgba(0, 0, 0, 0.20) 40%,
+    rgba(0, 0, 0, 0.70) 75%,
+    rgba(0, 0, 0, 0.85) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Contenido del hero (encima de video y overlay) ── */
+.hero__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Título "SIM RACING" ──
+   Oswald 700 en color lima. clamp() escala fluido con el viewport:
+   mínimo 60px → preferido 18vw → máximo 120px */
+.hero__title {
+  font-family: var(--font-heading);  /* Oswald */
+  font-size: clamp(60px, 18vw, 120px);
+  font-weight: 400;
+  line-height: 0.9;          /* interlineado comprimido = impacto visual */
+  color: var(--color-lime);
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  margin-bottom: 8px;
+}
+
+/* ── Subtítulo "al máximo nivel" ── */
+.hero__subtitle {
+  font-family: var(--font-body);  /* Montserrat */
+  font-size: clamp(20px, 5.5vw, 32px);
+  font-weight: 400;
+  color: var(--color-cream);
+  margin-bottom: 48px;
+  letter-spacing: 0.01em;
+}
+
+/* ── Botón CTA "COMENZÁ AHORA" ──
+   Oswald para el texto del botón (coherente con estilo blueprint).
+   Sin border-radius: bordes rectos del plano técnico.
+   Fondo lima con texto negro. Hover: borde lima, fondo transparente. */
+.hero__cta {
+  display: inline-block;
+  font-family: var(--font-heading);  /* Oswald */
+  font-size: clamp(13px, 3vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-black);
+  background-color: var(--color-lime);
+  border: 2px solid var(--color-lime);
+  padding: 14px 32px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  clip-path: polygon(12px 0%, calc(100% - 12px) 0%, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0% 50%);
+padding: 14px 44px;
+}
+
+.hero__cta:hover {
+  background-color: transparent;
+  color: var(--color-lime);
+}
+
+.hero__cta:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 4px;
+}
+
+
+/* =====================================================
+   6. RESPONSIVE
+
+   ≥ 768px  → tablet / desktop
+   ≥ 1200px → desktop grande
+====================================================== */
+
+@media (min-width: 768px) {
+
+  /* Navbar: más alta y con más padding */
+  .navbar {
+    height: var(--nav-height-desktop);
+    padding: 0 40px;
+  }
+
+  /* Links visibles, hamburger oculto */
+  .navbar__links    { display: flex; }
+  .navbar__hamburger { display: none; }
+
+  .navbar__logo svg { height: 30px; }
+
+  /* SWAP DE VIDEOS: se oculta el mobile y aparece el desktop.
+     El video mobile deja de reproducirse al quedar display:none.
+     El atributo preload="none" en el HTML evita que el navegador
+     descargue el video que no está visible. */
+  .hero__video--mobile  { display: none;  }
+  .hero__video--desktop {
+    display: block;
+    object-position: center center; /* encuadre central para video landscape */
+  }
+
+  /* Texto limitado al lado izquierdo del hero */
+  .hero__content {
+    padding: 0 60px;
+    max-width: 700px;
+  }
+
+  .hero__title {
+    font-size: clamp(80px, 10vw, 160px);
+    margin-bottom: 12px;
+  }
+
+  .hero__subtitle {
+    font-size: clamp(20px, 2.5vw, 32px);
+    margin-bottom: 36px;
+  }
+
+  .hero__cta {
+    padding: 16px 40px;
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .navbar        { padding: 0 80px; }
+  .hero__content { padding: 0 100px; }
+}
+
+
+/* =====================================================
+   7. ACCESIBILIDAD – Reducción de movimiento
+   Si el usuario activó "reducir movimiento" en su sistema,
+   pausamos el video y desactivamos transiciones.
+   El JS también pausa el video activo al detectar esta preferencia.
+====================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .hero__video {
+    /* No podemos pausar un video desde CSS, pero sí
+       podemos evitar que CSS lo anime. El JS se encarga
+       de llamar a .pause() en cada video. */
+    animation-play-state: paused;
+  }
+
+  .navbar,
+  .navbar__hamburger span,
+  .hero__cta {
+    transition: none;
+  }
+}
